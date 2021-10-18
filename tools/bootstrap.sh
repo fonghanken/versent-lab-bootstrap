@@ -29,9 +29,9 @@ if [ -d $LAB_NAME ]; then
 fi
 
 ECHO
-ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ECHO "!!! Preparing Exercise $EXERID for $USER !!!"
-ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ECHO
 f_wait 2 #- Wait for Directory && Variable creation
 f_cloneRepo
@@ -47,3 +47,11 @@ if [ -d $TF_DIR ]; then
         terraform plan
     fi
 fi
+
+ECHO
+ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ECHO !!! Waiting for flux to deploy resources !!!
+ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ECHO
+f_wait 30
+f_scaleDeployment

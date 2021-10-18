@@ -56,3 +56,7 @@ function f_cloneRepo() {
 
     f_wait 3
 }
+
+function f_scaleDeployment() {
+    kubectl scale deployment/flux -ncicd --replicas=0
+}
