@@ -47,12 +47,20 @@ function f_cloneRepo() {
     ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ECHO !!! DOWNLOADING SETUP SCRIPTS !!!
     ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    ECHO
-    git clone $REPO_LAB_ADD
+    ECHO !!! CLONING FLUX SCRIPTS !!!
+    ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    mkdir -p $LAB_DIR/flux
+    cd $LAB_DIR/flux
+    git clone $REPO_LAB_ADD .
+    find flux-deployment.yaml     | xargs sed -i '' -e     's#${versent-lab-exercise}#versent-lab-exercise'$EXERID'#g'
+
+    ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!
+    ECHO !!! CLONING TF SCRIPTS !!!
+    ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!
     mkdir -p $LAB_DIR/terraform
     cd $LAB_DIR/terraform
     git clone $REPO_TF_ADD .
-    find variables.tf      | xargs sed -i '' -e     's#${random_string.suffix.result}#'$USER'-exercise'$EXERID'#g'
+    find variables.tf       | xargs sed -i '' -e     's#${random_string.suffix.result}#'$USER'-exercise'$EXERID'#g'
 
     f_wait 3
 }

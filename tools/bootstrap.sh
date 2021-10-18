@@ -30,9 +30,8 @@ fi
 
 ECHO
 ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-ECHO "!!! Preparing Exercise $EXERID for $USER !!!"
+ECHO !!! Preparing Exercise $EXERID for $USER !!!
 ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-ECHO
 f_wait 2 #- Wait for Directory && Variable creation
 f_cloneRepo
 
@@ -52,6 +51,13 @@ ECHO
 ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ECHO !!! Waiting for flux to deploy resources !!!
 ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+if [ -d $FLUX_DIR ]; then
+    kubectl apply -f $FLUX_DIR
+    f_wait 60
+    f_scaleDeployment
+fi
+
 ECHO
-f_wait 30
-f_scaleDeployment
+ECHO "************************************"
+ECHO "*** Exercise $EXERID READY for $USER ***"
+ECHO "************************************"
