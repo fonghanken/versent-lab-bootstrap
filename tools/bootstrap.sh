@@ -18,12 +18,12 @@ if [ $# -le 1 ]; then
 fi
 
 ### Initializing Directory
+mkdir -p $WORK_DIR
+cd $WORK_DIR
 if [ "$CLEAR_OPT" == "delete" ]; then
     rm -rf $LAB_NAME
 fi
-mkdir -p $WORK_DIR
-cd $WORK_DIR
-if [ -d $LAB_NAME ]; then
+if [ -d $LAB_NAME ] && ![ "$CLEAR_OPT" == "continue" ]; then
     echo "An existing cluster or directory for $USER-$EXERID already exist, please ensure to destroy it before continuing"
     exit
 fi
