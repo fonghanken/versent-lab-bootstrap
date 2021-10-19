@@ -44,19 +44,18 @@ function f_checkEnvironment() {
 
 function f_cloneRepo() {
     ECHO
-    ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    ECHO !!! DOWNLOADING SETUP SCRIPTS !!!
-    ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    ECHO !!! CLONING FLUX SCRIPTS !!!
-    ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ECHO !!!!!!!!!!!!!!!!!!
+    ECHO !! CLONING FLUX !!
+    ECHO !!!!!!!!!!!!!!!!!!
     mkdir -p $LAB_DIR/flux
     cd $LAB_DIR/flux
     git clone $REPO_LAB_ADD .
     find flux-deployment.yaml     | xargs sed -i '' -e     's#${versent-lab-exercise}#versent-lab-exercise'$EXERID'#g'
 
-    ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!
-    ECHO !!! CLONING TF SCRIPTS !!!
-    ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!
+    ECHO
+    ECHO !!!!!!!!!!!!!!!!
+    ECHO !! CLONING TF !!
+    ECHO !!!!!!!!!!!!!!!!
     mkdir -p $LAB_DIR/terraform
     cd $LAB_DIR/terraform
     git clone $REPO_TF_ADD .
@@ -67,4 +66,21 @@ function f_cloneRepo() {
 
 function f_scaleDeployment() {
     kubectl scale deployment/flux -ncicd --replicas=0
+}
+
+function f_executeTerraform() {
+    ECHO
+    ECHO !!!!!!!!!!!!!!!!
+    ECHO !! EXECUTE TF !!
+    ECHO !!!!!!!!!!!!!!!!
+    if [ -d $TF_DIR ]; then
+        cd $TF_DIR
+        terraform init &&
+        if [ "$TF_OPT" == "apply" ]; then
+            terraform apply && #--auto-approve -lock=false 
+            aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name) --alias $USER'-exercise'$EXERID
+        else
+            terraform plan
+        fi
+    fi
 }

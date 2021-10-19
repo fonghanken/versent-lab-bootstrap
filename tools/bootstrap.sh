@@ -29,28 +29,18 @@ if [ -d $LAB_NAME ]; then
 fi
 
 ECHO
-ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-ECHO !!! Preparing Exercise $EXERID for $USER !!!
-ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ECHO !! Prepare Exercise $EXERID for $USER !!
+ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 f_wait 2 #- Wait for Directory && Variable creation
 f_cloneRepo
+f_executeTerraform
 
-if [ -d $TF_DIR ]; then
-    
-    cd $TF_DIR
-    terraform init &&
-    if [ "$TF_OPT" == "apply" ]; then
-        terraform apply && #--auto-approve -lock=false 
-        aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name) --alias $USER'-exercise'$EXERID
-    else
-        terraform plan
-    fi
-fi
 
 ECHO
-ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-ECHO !!! Waiting for flux to deploy resources !!!
-ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ECHO !!!!!!!!!!!!!!!!
+ECHO !! Apply Flux !!
+ECHO !!!!!!!!!!!!!!!!
 if [ -d $FLUX_DIR ]; then
     kubectl apply -f $FLUX_DIR
     f_wait 60
