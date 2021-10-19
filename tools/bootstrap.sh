@@ -36,7 +36,6 @@ f_wait 2 #- Wait for Directory && Variable creation
 f_cloneRepo
 f_executeTerraform
 
-
 ECHO
 ECHO !!!!!!!!!!!!!!!!
 ECHO !! Apply Flux !!
