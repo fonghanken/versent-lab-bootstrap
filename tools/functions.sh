@@ -77,10 +77,10 @@ function f_executeTerraform() {
         cd $TF_DIR
         terraform init &&
         if [ "$TF_OPT" == "apply" ]; then
-            terraform apply && #--auto-approve -lock=false 
-            aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name) --alias $USER'-exercise'$EXERID
-        else
             terraform plan
+        else
+            terraform apply --auto-approve -lock=false &&
+            aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name) --alias $USER'-exercise'$EXERID
         fi
     fi
 }

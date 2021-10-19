@@ -19,7 +19,7 @@ fi
 
 ### Initializing Directory
 if [ "$CLEAR_OPT" == "delete" ]; then
-    rm -rf $WORK_DIR
+    rm -rf $LAB_NAME
 fi
 mkdir -p $WORK_DIR
 cd $WORK_DIR
