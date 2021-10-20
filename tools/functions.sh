@@ -59,7 +59,7 @@ function f_cloneRepo() {
     mkdir -p $LAB_DIR/terraform
     cd $LAB_DIR/terraform
     git clone $REPO_TF_ADD .
-    find variables.tf       | xargs sed -i '' -e     's#${random_string.suffix.result}#'$USER'-lab'$EXERID'#g'
+    find variables.tf       | xargs sed -i '' -e     's#${random_string.suffix.result}#'$USER'-lab-'$EXERID'#g'
 
     f_wait 3
 }
