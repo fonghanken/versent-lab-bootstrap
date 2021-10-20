@@ -13,7 +13,7 @@ else
 fi
 
 if [ "$clusterName" == "" ]; then
-    clusterName=$USER'-exercise'$EXERID
+    clusterName=$USER'-lab'$EXERID
 else
     awsTag=$3
 fi
