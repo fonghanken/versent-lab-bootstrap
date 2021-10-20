@@ -76,8 +76,10 @@ function f_executeTerraform() {
     if [ -d $TF_DIR ]; then
         cd $TF_DIR
         terraform init &&
-        if [ "$TF_OPT" == "apply" ]; then
+        if [ "$TF_OPT" == "plan" ]; then
             terraform plan
+        elif [ "$TF_OPT" == "destroy" ]; then
+            terraform destroy --auto-approve
         else
             terraform apply --auto-approve -lock=false &&
             aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name) --alias $USER'-exercise'$EXERID
