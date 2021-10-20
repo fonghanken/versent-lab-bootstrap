@@ -50,7 +50,7 @@ function f_cloneRepo() {
     mkdir -p $LAB_DIR/flux
     cd $LAB_DIR/flux
     git clone $REPO_LAB_ADD .
-    find flux-deployment.yaml     | xargs sed -i '' -e     's#${versent-lab-exercise}#versent-lab-exercise'$EXERID'#g'
+    find flux-deployment.yaml     | xargs sed -i '' -e     's#${versent-lab-exercise}#versent-lab-'$EXERID'#g'
 
     ECHO
     ECHO !!!!!!!!!!!!!!!!
@@ -59,7 +59,7 @@ function f_cloneRepo() {
     mkdir -p $LAB_DIR/terraform
     cd $LAB_DIR/terraform
     git clone $REPO_TF_ADD .
-    find variables.tf       | xargs sed -i '' -e     's#${random_string.suffix.result}#'$USER'-exercise'$EXERID'#g'
+    find variables.tf       | xargs sed -i '' -e     's#${random_string.suffix.result}#'$USER'-lab'$EXERID'#g'
 
     f_wait 3
 }

@@ -1,19 +1,24 @@
 #! /bin/bash
 ### Input Parameters to select which automation scripts to process #####
 ## 1. User Name
-## 2. Exercise ID
+## 2. Exercise Number
 ########################################################################
 ### Import Functions & Variables ###
 USER=$1
 EXERID=$2
 TF_OPT=$3
 CLEAR_OPT=$4
+if [ ${#1} -ge 11 ]; then
+    echo "WARNING: Input a username that is no more than 10 characters!"
+    exit
+fi
+
 source functions.sh
 source vars.properties
 f_checkEnvironment
 
 if [ $# -le 1 ]; then
-    echo 'Please input user and exercise ID as arguments!'
+    echo 'WARNING: Please input user and lab number as arguments!'
     exit
 fi
 
@@ -24,7 +29,7 @@ if [ "$CLEAR_OPT" == "delete" ]; then
     rm -rf $LAB_NAME
 fi
 if [ -d $LAB_NAME ] && ![ "$CLEAR_OPT" == "continue" ]; then
-    echo "An existing cluster or directory for $USER-$EXERID already exist, please ensure to destroy it before continuing"
+    echo "WARNING:  An existing cluster or directory for $USER-$EXERID already exist, please ensure to destroy it before continuing!"
     exit
 fi
 
