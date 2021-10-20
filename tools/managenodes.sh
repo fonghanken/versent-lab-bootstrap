@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 process=$1
 awsTag=$2
+clusterName=$3
 if [ "$process" == "start" ]; then
     ec2Process="start"
     asgProcess="resume"
@@ -11,9 +12,16 @@ else
     filterVal="running"
 fi
 
+if [ "$clusterName" == "" ]; then
+    clusterName=$USER'-exercise'$EXERID
+else
+    awsTag=$3
+fi
+
 #Obtain ASG names based on tags
-declare -a ASG_NAMES=$(aws autoscaling describe-auto-scaling-groups --query 'AutoScalingGroups[].[AutoScalingGroupName]' \
-        --region ap-southeast-1 --output text | grep "$awsTag") &&
+declare -a ASG_NAMES=$(aws autoscaling describe-auto-scaling-groups \
+        --query 'AutoScalingGroups[?contains(Tags[?Key==`kubernetes.io/cluster/eks-'$clusterName'`].Value,`owned`)].[AutoScalingGroupName]' \
+        --region ap-southeast-1 --output text) &&
 echo "List ASG:"
 echo "$ASG_NAMES"
 ASG_NAMES_ARRAY=( $ASG_NAMES ) &&
