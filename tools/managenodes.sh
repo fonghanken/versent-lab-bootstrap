@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 process=$1
-awsTag=$2
-clusterName=$3
+clusterName=$2
 if [ "$process" == "start" ]; then
     ec2Process="start"
     asgProcess="resume"
@@ -10,12 +9,6 @@ else
     ec2Process="stop"
     asgProcess="suspend"
     filterVal="running"
-fi
-
-if [ "$clusterName" == "" ]; then
-    clusterName=$USER'-lab-'$EXERID
-else
-    awsTag=$3
 fi
 
 #Obtain ASG names based on tags
@@ -34,7 +27,7 @@ done
 
 #Obtain EC2 instances-id based on tags
 declare -a EC2_IDS=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId}' \
-        --region ap-southeast-1 --filters Name=tag:Name,Values=*$awsTag* Name=instance-state-name,Values=$filterVal  \
+        --region ap-southeast-1 --filters Name=tag:Name,Values=*$clusterName* Name=instance-state-name,Values=$filterVal  \
         --instance-ids --output text) &&
 echo "List EC2:"
 echo "$EC2_IDS"
