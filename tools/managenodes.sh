@@ -1,18 +1,35 @@
 #!/usr/bin/env bash
-ec2Process=$1
-ec2Tag=$2
-#Obtain Ec2 instances-id based on tags
-
-if [ "$ec2Process" == "start" ]; then
+process=$1
+awsTag=$2
+if [ "$process" == "start" ]; then
+    ec2Process="start"
+    asgProcess="resume"
     filterVal="stopped"
 else
     ec2Process="stop"
+    asgProcess="suspend"
     filterVal="running"
 fi
+
+#Obtain ASG names based on tags
+declare -a ASG_NAMES=$(aws autoscaling describe-auto-scaling-groups --query 'AutoScalingGroups[].[AutoScalingGroupName]' \
+        --region ap-southeast-1 --output text | grep "$awsTag") &&
+echo "List ASG:"
+echo "$ASG_NAMES"
+ASG_NAMES_ARRAY=( $ASG_NAMES ) &&
+for i in "${ASG_NAMES_ARRAY[@]}"
+do
+    #Start/Stop suspend-process
+    aws autoscaling $asgProcess-processes --auto-scaling-group-name $i --scaling-processes Launch --region ap-southeast-1;
+    aws autoscaling $asgProcess-processes --auto-scaling-group-name $i --scaling-processes Terminate --region ap-southeast-1;
+done 
+
+#Obtain EC2 instances-id based on tags
 declare -a EC2_IDS=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId}' \
-        --region ap-southeast-1 --filters Name=tag:Name,Values=*$ec2Tag* Name=instance-state-name,Values=$filterVal  \
+        --region ap-southeast-1 --filters Name=tag:Name,Values=*$awsTag* Name=instance-state-name,Values=$filterVal  \
         --instance-ids --output text) &&
-echo "List EC2: $EC2_IDS"
+echo "List EC2:"
+echo "$EC2_IDS"
 EC2_IDS_ARRAY=( $EC2_IDS ) &&
 for i in "${EC2_IDS_ARRAY[@]}"
 do
