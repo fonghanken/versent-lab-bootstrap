@@ -42,7 +42,7 @@ ECHO !! Apply Flux !!
 ECHO !!!!!!!!!!!!!!!!
 if [ -d $FLUX_DIR ]; then
     kubectl apply -f $FLUX_DIR
-    f_wait 60
+    f_wait 120
     f_scaleDeployment
 fi
 
