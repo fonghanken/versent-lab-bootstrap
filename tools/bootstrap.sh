@@ -7,9 +7,15 @@
 USER=$1
 EXERID=$2
 TF_OPT=$3
-CLEAR_OPT=$4
+
 if [ ${#1} -ge 11 ]; then
     echo "WARNING: Input a username that is no more than 10 characters!"
+    exit
+fi
+if [[ $(($2)) -ge 1 && $(($2)) -le 6 ]]; then
+    echo
+else
+    echo "WARNING: Input valid Exercise (1 - 6)!"
     exit
 fi
 
@@ -25,33 +31,28 @@ fi
 ### Initializing Directory
 mkdir -p $WORK_DIR
 cd $WORK_DIR
-if [ "$CLEAR_OPT" == "delete" ]; then
-    rm -rf $LAB_NAME
-fi
-if [ -d $LAB_NAME ] && [ ! "$CLEAR_OPT" == "continue" ]; then
-    echo "WARNING:  An existing cluster or directory for $USER-$EXERID already exist, please ensure to destroy it before continuing!"
-    exit
-fi
-
-ECHO
-ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-ECHO !! Prepare Exercise $EXERID for $USER !!
-ECHO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+echo "*************************************"
+echo "*** Prepare Lab $EXERID for $USER ***"
+echo "*************************************"
 f_wait 2 #- Wait for Directory && Variable creation
 f_cloneRepo
 f_executeTerraform
 
-ECHO
-ECHO !!!!!!!!!!!!!!!!
-ECHO !! Apply Flux !!
-ECHO !!!!!!!!!!!!!!!!
-if [ -d $FLUX_DIR ]; then
-    kubectl apply -f $FLUX_DIR
-    f_wait 120
-    f_scaleDeployment
-fi
+cd $TF_DIR
+TF_RESULTS=$(terraform output | grep cluster_name)
 
-ECHO
-ECHO "************************************"
-ECHO "*** Exercise $EXERID READY for $USER ***"
-ECHO "************************************"
+if [[ "$TF_RESULTS" == *"$LAB_NAME"* ]]; then
+    ECHO
+    ECHO !!!!!!!!!!!!!!!!
+    ECHO !! Apply Flux !!
+    ECHO !!!!!!!!!!!!!!!!
+    if [ -d $FLUX_DIR ]; then
+        kubectl apply -f $FLUX_DIR
+        f_wait 120
+        f_scaleDeployment
+    fi
+
+    echo "***********************************"
+    echo "*** Lab $EXERID READY for $USER ***"
+    echo "***********************************"
+fi
