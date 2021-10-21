@@ -101,12 +101,43 @@ function f_executeTerraform() {
         cd $TF_DIR
         terraform init &&
         if [ "$TF_OPT" == "plan" ]; then
-            terraform plan -lock=false
+            terraform plan
         elif [ "$TF_OPT" == "destroy" ]; then
             terraform destroy --auto-approve
         else
-            terraform apply --auto-approve -lock=false &&
+            terraform apply --auto-approve &&
             aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name) --alias $USER'-exercise'$EXERID
         fi
     fi
+}
+
+function f_modifyASG() {
+    #Obtain ASG names based on tags
+    declare -a ASG_NAMES=$(aws autoscaling describe-auto-scaling-groups \
+            --query "AutoScalingGroups[?Tags[?contains(Key, 'kubernetes.io/cluster/eks-$clusterName') && contains(Value, 'owned')]].[AutoScalingGroupName]" \
+            --region ap-southeast-1 --output text) &&
+    echo "List ASG:"
+    echo "$ASG_NAMES"
+    ASG_NAMES_ARRAY=( $ASG_NAMES ) &&
+    for i in "${ASG_NAMES_ARRAY[@]}"
+    do
+        #Start/Stop suspend-process
+        aws autoscaling $asgProcess-processes --auto-scaling-group-name $i --scaling-processes Launch --region ap-southeast-1;
+        aws autoscaling $asgProcess-processes --auto-scaling-group-name $i --scaling-processes Terminate --region ap-southeast-1;
+    done 
+}
+
+function f_modifyEC2() {
+    #Obtain EC2 instances-id based on tags
+    declare -a EC2_IDS=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId}' \
+            --region ap-southeast-1 --filters Name=tag:Name,Values=*$clusterName* Name=instance-state-name,Values=$filterVal  \
+            --instance-ids --output text) &&
+    echo "List EC2:"
+    echo "$EC2_IDS"
+    EC2_IDS_ARRAY=( $EC2_IDS ) &&
+    for i in "${EC2_IDS_ARRAY[@]}"
+    do
+        #Start/Stop Ec2 instances
+        aws ec2 $ec2Process-instances --instance-ids $i --region ap-southeast-1;
+    done
 }
