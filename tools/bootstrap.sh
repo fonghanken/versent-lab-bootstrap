@@ -28,7 +28,7 @@ cd $WORK_DIR
 if [ "$CLEAR_OPT" == "delete" ]; then
     rm -rf $LAB_NAME
 fi
-if [ -d $LAB_NAME ] && ![ "$CLEAR_OPT" == "continue" ]; then
+if [ -d $LAB_NAME ] && [ ! "$CLEAR_OPT" == "continue" ]; then
     echo "WARNING:  An existing cluster or directory for $USER-$EXERID already exist, please ensure to destroy it before continuing!"
     exit
 fi
