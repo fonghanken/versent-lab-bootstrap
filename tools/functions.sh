@@ -43,11 +43,11 @@ function f_checkEnvironment() {
 }
 
 function f_cloneRepo() {
+    mkdir -p $LAB_DIR
     echo "=================================="
     echo "========== CLONING FLUX =========="
     echo "=================================="
     cd $LAB_DIR
-    mkdir -p $LAB_DIR
     ### Rename Flux directory - from old to new naming convention
     if [ -d $LAB_DIR/flux ] && [ ! -d $FLUX_DIR ]; then
         echo "Renaming $LAB_DIR/flux to $FLUX_DIR"
