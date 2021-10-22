@@ -49,7 +49,7 @@ f_executeTerraform
 cd $TF_DIR
 TF_RESULTS=$(terraform output eks_nodegroup | grep node_group_name)
 
-if [[ "$TF_RESULTS" == *"$CLUSTER_NAME"* ]]; then
+if [[ "$TF_RESULTS" == *"eks-$USERID-lab-worker"* ]]; then
     echo "================"
     echo "== Apply Flux =="
     echo "================"
