@@ -8,7 +8,7 @@ USER=$1
 EXERID=$2
 TF_OPT=$3
 
-if [ ${#1} -ge 11 ]; then
+if [ ${#1} -gt 0 ] && [ ${#1} -ge 11 ]; then
     echo "WARNING: Input a username that is no more than 10 characters!"
     exit
 fi
@@ -39,17 +39,16 @@ f_cloneRepo
 f_executeTerraform
 
 cd $TF_DIR
-TF_RESULTS=$(terraform output | grep cluster_name)
+TF_RESULTS=$(terraform output eks_nodegroup | grep node_group_name)
 
-if [[ "$TF_RESULTS" == *"$LAB_NAME"* ]]; then
-    ECHO
-    ECHO !!!!!!!!!!!!!!!!
-    ECHO !! Apply Flux !!
-    ECHO !!!!!!!!!!!!!!!!
+if [[ "$TF_RESULTS" == *"$CLUSTER_NAME"* ]]; then
+    echo "================"
+    echo "== Apply Flux =="
+    echo "================"
     if [ -d $FLUX_DIR ]; then
         kubectl apply -f $FLUX_DIR
         f_wait 120
-        f_scaleDeployment
+        f_scaleDeployment 0
     fi
 
     echo "***********************************"

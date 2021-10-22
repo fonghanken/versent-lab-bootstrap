@@ -43,54 +43,46 @@ function f_checkEnvironment() {
 }
 
 function f_cloneRepo() {
-    mkdir -p $LAB_DIR
+     
     echo "=================================="
     echo "========== CLONING FLUX =========="
     echo "=================================="
-    cd $LAB_DIR
-    ### Rename Flux directory - from old to new naming convention
-    if [ -d $LAB_DIR/flux ] && [ ! -d $FLUX_DIR ]; then
-        echo "Renaming $LAB_DIR/flux to $FLUX_DIR"
-        f_wait 2
-        mv $LAB_DIR/flux $FLUX_DIR
-    fi
-
-    if [ -d $FLUX_DIR ]; then
-        cd $FLUX_DIR
+    if [ -d $LAB_DIR ]; then
+        cd $LAB_DIR
         git stash && git pull
     else
-        git clone $REPO_LAB_ADD
+        mkdir -p $LAB_DIR
+        cd $LAB_DIR && git clone $REPO_LAB_ADD .
     fi
-    cd $FLUX_DIR
     find flux-deployment.yaml     | xargs sed -i '' -e     's#${versent-lab-exercise}#versent-lab-'$EXERID'#g'
-    
+    if [ -d $FLUX_DIR ]; then
+        kubectl config use-context "$USER-lab"
+        kubectl delete -f $FLUX_DIR
+        rm -R $FLUX_DIR/*
+    else
+        mkdir -p $FLUX_DIR
+    fi
+    cp -Rf $LAB_DIR/* $FLUX_DIR/
+
     echo "================================"
     echo "========== CLONING TF =========="
     echo "================================"
-    cd $LAB_DIR
-    ### Rename Terraform directory - from old to new naming convention
-    if [ -d $LAB_DIR/terraform ] && [ ! -d $TF_DIR ]; then
-        echo "Renaming $LAB_DIR/flux to $TF_DIR"
-        f_wait 2
-        mv $LAB_DIR/terraform $TF_DIR
-    fi
-
     if [ -d $TF_DIR ]; then
         cd $TF_DIR
         git stash && git pull
     else
-        git clone $REPO_TF_ADD
+        mkdir -p $TF_DIR
+        cd $TF_DIR && git clone $REPO_TF_ADD .
     fi
-    cd $TF_DIR
-    find variables.tf       | xargs sed -i '' -e     's#${random_string.suffix.result}#'$USER'-lab-'$EXERID'#g'
-    find versions.tf       | xargs sed -i '' -e     's#${variable.cluster_name.toreplace}#'$USER'-lab-'$EXERID'#g'
+    find variables.tf       | xargs sed -i '' -e     's#${random_string.suffix.result}#'$USER'-lab#g'
+    find versions.tf        | xargs sed -i '' -e     's#${variable.cluster_name.toreplace}#'$USER'-lab#g'
     ### Possible to use TF env var to replace backend config instead
     #export TF_CLI_ARGS_init='-backend-config="bucket=s3-bucket-name"'
     f_wait 3
 }
 
 function f_scaleDeployment() {
-    kubectl scale deployment/flux -ncicd --replicas=0
+    kubectl scale deployment/flux -ncicd --replicas=$1
 }
 
 function f_executeTerraform() {
@@ -106,7 +98,7 @@ function f_executeTerraform() {
             terraform destroy --auto-approve
         else
             terraform apply --auto-approve &&
-            aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name) --alias $USER'-lab-'$EXERID
+            aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name) --alias $USER'-lab'
         fi
     fi
 }
