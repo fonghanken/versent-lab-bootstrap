@@ -19,10 +19,8 @@ elif [ "$process" == "stop" ]; then
 
     ### Suspend Launch & Terminate on ASG
     f_modifyASG
-    if [ ! -z "$ASG_NAMES" ]; then
-        ### Stop EC2 instances
-        f_modifyEC2
-    fi
+    ### Stop EC2 instances
+    f_modifyEC2
 else
     echo "WARNING: Input a valid process (stop/start)!"
 fi
