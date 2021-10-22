@@ -106,7 +106,7 @@ function f_executeTerraform() {
             terraform destroy --auto-approve
         else
             terraform apply --auto-approve &&
-            aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name) --alias $USER'-exercise'$EXERID
+            aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name) --alias $USER'-lab-'$EXERID
         fi
     fi
 }
