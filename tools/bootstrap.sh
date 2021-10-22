@@ -49,10 +49,10 @@ f_executeTerraform
 cd $TF_DIR
 TF_RESULTS=$(terraform output eks_nodegroup | grep node_group_name)
 
-if [[ "$TF_RESULTS" == *"eks-$USERID-lab-worker"* ]]; then
-    echo "================"
-    echo "== Apply Flux =="
-    echo "================"
+if [[ "$TF_RESULTS" == *"eks-$USER-lab-worker"* ]]; then
+    echo "================================"
+    echo "========== APPLY FLUX =========="
+    echo "================================"
     if [ -d $FLUX_DIR ]; then
         kubectl apply -f $FLUX_DIR
         f_wait 120
