@@ -19,6 +19,14 @@ else
     exit
 fi
 
+echo "This will reset all resources in your existing cluster of $USER-lab?"
+select yn in "Yes" "No"; do
+    case $yn in
+        Yes ) echo "*** Proceed to create Lab $EXERID ***"; break;;
+        No ) echo "*** Exiting program ***"; exit;;
+    esac
+done
+
 source functions.sh
 source vars.properties
 f_checkEnvironment
