@@ -22,7 +22,7 @@ fi
 echo "This will reset all resources in cluster: $USER-lab"
 select yn in "Yes" "No"; do
     case $yn in
-        Yes ) echo "Yes selected!"; break;;
+        Yes ) echo "*** Yes selected, proceeding with program! ***"; break;;
         No ) echo "*** Exiting program ***"; exit;;
     esac
 done
