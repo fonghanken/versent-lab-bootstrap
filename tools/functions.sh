@@ -56,8 +56,7 @@ function f_cloneRepo() {
     fi
     find flux-deployment.yaml     | xargs sed -i '' -e     's#${versent-lab-exercise}#versent-lab-'$EXERID'#g'
     if [ -d $FLUX_DIR ]; then
-        kubectl config use-context "$USER-lab"
-        kubectl delete -f $FLUX_DIR
+        f_resetCluster
         rm -R $FLUX_DIR/*
     else
         mkdir -p $FLUX_DIR
@@ -85,6 +84,18 @@ function f_scaleDeployment() {
     kubectl scale deployment/flux -ncicd --replicas=$1
 }
 
+function f_resetCluster() {
+    kubectl config use-context "$USER-lab"
+    declare -a NS_NAMES=$(kubectl get namespaces -A | grep -v "kube-" | awk 'NR!=1 { print $1 }')
+    echo -n "List NS: "
+    echo "$NS_NAMES" | wc -l | xargs
+    NS_NAMES_ARRAY=( $NS_NAMES ) &&
+    for i in "${NS_NAMES_ARRAY[@]}"
+    do
+        kubectl delete all --all -n $i
+    done 
+}
+
 function f_executeTerraform() {
     echo "================================"
     echo "========== EXECUTE TF =========="
@@ -108,8 +119,8 @@ function f_modifyASG() {
     declare -a ASG_NAMES=$(aws autoscaling describe-auto-scaling-groups \
             --query "AutoScalingGroups[?Tags[?contains(Key, 'kubernetes.io/cluster/eks-$clusterName') && contains(Value, 'owned')]].[AutoScalingGroupName]" \
             --region ap-southeast-1 --output text) &&
-    echo "List ASG:"
-    echo "$ASG_NAMES"
+    echo -n "List ASG: "
+    echo "$ASG_NAMES" | wc -l | xargs
     ASG_NAMES_ARRAY=( $ASG_NAMES ) &&
     for i in "${ASG_NAMES_ARRAY[@]}"
     do
@@ -124,8 +135,8 @@ function f_modifyEC2() {
     declare -a EC2_IDS=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId}' \
             --region ap-southeast-1 --filters Name=tag:Name,Values=*$clusterName* Name=instance-state-name,Values=$filterVal  \
             --instance-ids --output text) &&
-    echo "List EC2:"
-    echo "$EC2_IDS"
+    echo -n "List EC2: "
+    echo "$EC2_IDS" | wc -l | xargs
     EC2_IDS_ARRAY=( $EC2_IDS ) &&
     for i in "${EC2_IDS_ARRAY[@]}"
     do
