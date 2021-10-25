@@ -55,7 +55,7 @@ if [[ "$TF_RESULTS" == *"eks-$USER-lab-worker"* ]]; then
     echo "================================"
     if [ -d $FLUX_DIR ]; then
         kubectl apply -f $FLUX_DIR
-        f_wait 120
+        f_wait 180
 
         if [ "$EXERID" == "4" ]; then
             ### Stop nodes as part of exercise
