@@ -57,6 +57,7 @@ function f_cloneRepo() {
     find flux-deployment.yaml     | xargs sed -i '' -e     's#${versent-lab-exercise}#versent-lab-'$EXERID'#g'
     if [ -d $FLUX_DIR ]; then
         f_resetCluster
+        f_wait 60
         rm -R $FLUX_DIR/*
     else
         mkdir -p $FLUX_DIR
