@@ -11,7 +11,7 @@ if [ "$process" == "start" ]; then
     ### Start EC2 instances
     f_modifyEC2
     ### Resume EC2 instances
-    f_modifyASG
+    #f_modifyASG
 elif [ "$process" == "stop" ]; then
     ec2Process="stop"
     asgProcess="suspend"
