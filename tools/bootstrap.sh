@@ -56,6 +56,19 @@ if [[ "$TF_RESULTS" == *"eks-$USER-lab-worker"* ]]; then
     if [ -d $FLUX_DIR ]; then
         kubectl apply -f $FLUX_DIR
         f_wait 120
+
+        if [ "$EXERID" == "4" ]; then
+            ### Stop nodes as part of exercise
+            source managenode.sh
+            ec2Process="stop"
+            asgProcess="suspend"
+            filterVal="running"
+
+            ### Suspend Launch & Terminate on ASG
+            f_modifyASG
+            ### Stop EC2 instances
+            f_modifyEC2
+        fi
         f_scaleDeployment 0
     fi
 
