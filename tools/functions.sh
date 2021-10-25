@@ -150,7 +150,6 @@ function f_modifyEC2() {
 function f_configLab() {
     if [ "$EXERID" == "4" ]; then
         ### Stop nodes as part of exercise
-        source managenode.sh
         ec2Process="stop"
         asgProcess="suspend"
         filterVal="running"
