@@ -21,6 +21,9 @@ elif [ "$process" == "stop" ]; then
     f_modifyASG
     ### Stop EC2 instances
     f_modifyEC2
+elif [ "$process" == "resume" ]; then
+    asgProcess="resume"
+    f_modifyASG
 else
     echo "WARNING: Input a valid process (stop/start)!"
 fi
