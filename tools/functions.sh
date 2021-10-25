@@ -146,3 +146,21 @@ function f_modifyEC2() {
         aws ec2 $ec2Process-instances --instance-ids $i --region ap-southeast-1;
     done
 }
+
+function f_configLab() {
+    if [ "$EXERID" == "4" ]; then
+        ### Stop nodes as part of exercise
+        source managenode.sh
+        ec2Process="stop"
+        asgProcess="suspend"
+        filterVal="running"
+
+        ### Suspend Launch & Terminate on ASG
+        f_modifyASG
+        ### Stop EC2 instances
+        f_modifyEC2
+    elif [ "$EXERID" == "3" ]; then
+        NODENAME=$(kubectl get nodes --show-labels | grep role=worker | awk 'NR==1 { print $1 }') &&
+        kubectl taint nodes $NODENAME special=true:NoSchedule
+    fi
+}
