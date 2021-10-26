@@ -55,7 +55,8 @@ if [[ "$TF_RESULTS" == *"eks-$USER-lab-worker"* ]]; then
     echo "================================"
     if [ -d $FLUX_DIR ]; then
         kubectl apply -f $FLUX_DIR
-        f_wait 180
+        echo "*** Please wait for 5mins for Flux to complete deployment ***"
+        f_wait 300
         f_configLab
         f_scaleDeployment 0
     fi
