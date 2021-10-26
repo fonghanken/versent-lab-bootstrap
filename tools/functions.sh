@@ -20,6 +20,20 @@ function f_wait() {
 }
 
 function f_checkEnvironment() {
+    if ! terraform --help &> /dev/null; then
+        echo "Please install Terraform first before running the bootstrap scripts"
+        exit
+    else
+        echo "Terraform Installed"
+    fi
+
+    if ! git --help &> /dev/null; then
+        echo "Please install Git first before running the bootstrap scripts"
+        exit
+    else
+        echo "Git Installed"
+    fi
+
     if ! command -v aws &> /dev/null; then
         echo "Please install aws CLI - https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html"
         exit
