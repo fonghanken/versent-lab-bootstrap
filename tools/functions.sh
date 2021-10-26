@@ -88,7 +88,7 @@ function f_scaleDeployment() {
 function f_resetCluster() {
     kubectl config use-context "$USER-lab"
     kubectl delete -f $FLUX_DIR
-    declare -a NS_NAMES=$(kubectl get namespaces -A | egrep -Ev "kube-|cert-manager" | awk 'NR!=1 { print $1 }')
+    declare -a NS_NAMES=$(kubectl get namespaces -A | egrep -Ev "kube-|cert-manager|calico-|tigera-" | awk 'NR!=1 { print $1 }')
     echo -n "List NS: "
     echo "$NS_NAMES" | wc -l | xargs
     NS_NAMES_ARRAY=( $NS_NAMES ) &&
