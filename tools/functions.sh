@@ -176,6 +176,6 @@ function f_configLab() {
         NODENAME1=$(kubectl get nodes --show-labels | grep role=worker | awk 'NR==1 { print $1 }') &&
         NODENAME2=$(kubectl get nodes --show-labels | grep role=worker | awk 'NR==1 { print $1 }')
         kubectl taint nodes $NODENAME1 special=true:NoSchedule
-        kubectl taint nodes $NODENAME2 isolation=true:NoSchedule
+        kubectl taint nodes $NODENAME2 isolation=true:NoExecute
     fi
 }
