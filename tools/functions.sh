@@ -148,7 +148,7 @@ function f_modifyEC2() {
 }
 
 function f_configLab() {
-    if [ "$EXERID" == "4" ]; then
+    if [ "$EXERID" == "5" ]; then
         ### Stop nodes as part of exercise
         ec2Process="stop"
         asgProcess="suspend"
@@ -158,7 +158,7 @@ function f_configLab() {
         f_modifyASG
         ### Stop EC2 instances
         f_modifyEC2
-    elif [ "$EXERID" == "3" ]; then
+    elif [ "$EXERID" == "4" ]; then
         NODENAME=$(kubectl get nodes --show-labels | grep role=worker | awk 'NR==1 { print $1 }') &&
         kubectl taint nodes $NODENAME special=true:NoSchedule
     fi
