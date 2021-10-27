@@ -143,6 +143,9 @@ function f_executeCreation() {
     echo "========== CONFIGFLUX =========="
     echo "================================"
     if [ -d $FLUX_DIR ]; then
+        f_scaleDeployment 0
+        k delete -f $FLUX_DIR
+        f_wait 10
         f_resetCluster
         f_wait 60
         rm -R $FLUX_DIR/*
