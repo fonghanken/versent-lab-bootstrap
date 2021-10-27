@@ -92,23 +92,23 @@ function f_scaleDeployment() {
 
 function f_resetCluster() {
     kubectl config use-context "$USER-lab"
-    kubectl delete -f $FLUX_DIR
-    # declare -a NS_NAMES=$(kubectl get namespaces -A | egrep -Ev "kube-" | awk 'NR!=1 { print $1 }') &&
-    # echo -n "List NS: " &&
-    # echo "$NS_NAMES" #| wc -l | xargs &&
-    # NS_ARRAY=( $NS_NAMES ) &&
-    # for i in "${NS_ARRAY[@]}"
-    # do
-    #     if [ "$i" == "default" ]; then
-    #         kubectl delete all --all -n $i
-    #     else
-    #         kubectl delete ns $i
-    #     fi
-    # done
+    #kubectl delete -f $FLUX_DIR
+    declare -a NS_NAMES=$(kubectl get namespaces -A | egrep -Ev "kube-" | awk 'NR!=1 { print $1 }') &&
+    echo -n "List NS: " &&
+    echo "$NS_NAMES" #| wc -l | xargs &&
+    NS_ARRAY=( $NS_NAMES ) &&
+    for i in "${NS_ARRAY[@]}"
+    do
+        if [ "$i" == "default" ]; then
+            kubectl delete all --all -n $i
+        else
+            kubectl delete ns $i
+        fi
+    done
 
     ### Delete all namespaced resources
     kubectl delete "$(kubectl api-resources --namespaced=true --verbs=delete -o name | tr "\n" "," | sed -e 's/,$//')" --all
-
+    #kubectl api-resources --namespaced=false --verbs=delete
     ### Delete PV
     declare -a PV_NAMES=$(kubectl get pv -A -o name)
     echo -n "List PV: " &&
@@ -130,6 +130,8 @@ function f_executeCreation() {
         if [ "$TF_OPT" == "plan" ]; then
             terraform plan
         elif [ "$TF_OPT" == "destroy" ]; then
+            asgProcess="resume"
+            f_modifyASG
             terraform destroy --auto-approve
         else
             terraform apply --auto-approve &&
