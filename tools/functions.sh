@@ -68,7 +68,7 @@ function f_cloneRepo() {
         mkdir -p $LAB_DIR
         cd $LAB_DIR && git clone $REPO_LAB_ADD .
     fi
-    find flux-deployment.yaml     | xargs sed -i '' -e     's#${versent-lab-exercise}#versent-lab-'$EXERID'#g'
+    find flux-deployment.yaml     | xargs sed -i '' -e     's#${versent-lab-exercise}#lab-'$EXERID'#g'
     if [ -d $FLUX_DIR ]; then
         f_resetCluster
         f_wait 60
