@@ -107,7 +107,7 @@ function f_resetCluster() {
     done
 
     ### Delete all namespaced resources
-    kubectl delete "$(kubectl api-resources --namespaced=true --verbs=delete -o name | tr "\n" "," | sed -e 's/,$//')" --all
+    #kubectl delete "$(kubectl api-resources --namespaced=true --verbs=delete -o name | tr "\n" "," | sed -e 's/,$//')" --all
     #kubectl api-resources --namespaced=false --verbs=delete
     ### Delete PV
     declare -a PV_NAMES=$(kubectl get pv -A -o name)
