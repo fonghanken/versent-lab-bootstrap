@@ -44,7 +44,7 @@ echo "*** Prepare Lab $EXERID for $USER ***"
 echo "*************************************"
 f_wait 2 #- Wait for Directory && Variable creation
 f_cloneRepo
-f_executeTerraform
+f_executeCreation
 
 cd $TF_DIR
 TF_RESULTS=$(terraform output eks_nodegroup | grep node_group_name)

@@ -69,14 +69,6 @@ function f_cloneRepo() {
         cd $LAB_DIR && git clone $REPO_LAB_ADD .
     fi
     find flux-deployment.yaml     | xargs sed -i '' -e     's#${versent-lab-exercise}#lab-'$EXERID'#g'
-    if [ -d $FLUX_DIR ]; then
-        f_resetCluster
-        f_wait 60
-        rm -R $FLUX_DIR/*
-    else
-        mkdir -p $FLUX_DIR
-    fi
-    cp -Rf $LAB_DIR/* $FLUX_DIR/
 
     echo "================================"
     echo "========== CLONING TF =========="
@@ -92,7 +84,6 @@ function f_cloneRepo() {
     find versions.tf        | xargs sed -i '' -e     's#${variable.cluster_name.toreplace}#'$USER'-lab#g'
     ### Possible to use TF env var to replace backend config instead
     #export TF_CLI_ARGS_init='-backend-config="bucket=s3-bucket-name"'
-    f_wait 3
 }
 
 function f_scaleDeployment() {
@@ -129,7 +120,7 @@ function f_resetCluster() {
     done
 }
 
-function f_executeTerraform() {
+function f_executeCreation() {
     echo "================================"
     echo "========== EXECUTE TF =========="
     echo "================================"
@@ -145,6 +136,18 @@ function f_executeTerraform() {
             aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name) --alias $USER'-lab'
         fi
     fi
+
+    echo "================================"
+    echo "========== CONFIGFLUX =========="
+    echo "================================"
+    if [ -d $FLUX_DIR ]; then
+        f_resetCluster
+        f_wait 60
+        rm -R $FLUX_DIR/*
+    else
+        mkdir -p $FLUX_DIR
+    fi
+    cp -Rf $LAB_DIR/* $FLUX_DIR/
 }
 
 function f_modifyASG() {
