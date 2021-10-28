@@ -20,14 +20,14 @@ function f_wait() {
 }
 
 function f_checkEnvironment() {
-    if ! terraform --help &> /dev/null; then
+    if ! command -v terraform &> /dev/null; then
         echo "Please install Terraform first before running the bootstrap scripts"
         exit
     else
         echo "Terraform Installed"
     fi
 
-    if ! git --help &> /dev/null; then
+    if ! command -v git &> /dev/null; then
         echo "Please install Git first before running the bootstrap scripts"
         exit
     else
@@ -91,7 +91,7 @@ function f_scaleDeployment() {
 }
 
 function f_resetCluster() {
-    kubectl config use-context "$USER-lab"
+    kubectl config use-context "eks-$USER-lab"
     kubectl delete -f $FLUX_DIR
     f_wait 3
     declare -a NS_NAMES=$(kubectl get namespaces -A | egrep -Ev "kube-|calico-|tigera-" | awk 'NR!=1 { print $1 }') &&
@@ -136,7 +136,7 @@ function f_executeCreation() {
             terraform destroy --auto-approve
         else
             terraform apply --auto-approve &&
-            aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name) --alias $USER'-lab'
+            aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name) --alias 'eks-'$USER'-lab'
         fi
     fi
 
