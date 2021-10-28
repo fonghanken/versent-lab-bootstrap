@@ -56,8 +56,7 @@ function f_checkEnvironment() {
     fi
 }
 
-function f_cloneRepo() {
-     
+function f_cloneRepo() {  
     echo "=================================="
     echo "========== CLONING FLUX =========="
     echo "=================================="
@@ -111,16 +110,24 @@ function f_resetCluster() {
     done
 
     ### Delete all namespaced resources
-    kubectl delete "$(kubectl api-resources --namespaced=true --verbs=delete -o name | tr "\n" "," | sed -e 's/,$//')" --all
+    #kubectl delete "$(kubectl api-resources --namespaced=true --verbs=delete -o name | tr "\n" "," | sed -e 's/,$//')" --all
     #kubectl api-resources --namespaced=false --verbs=delete
     ### Delete PV
-
-    declare -a PV_NAMES=$(kubectl get pv -A -o name)
-    echo -n "List PV: " && echo "$PV_NAMES" #| wc -l | xargs &&
-    PV_ARRAY=( $PV_NAMES ) &&
-    for i in "${echo[@]}"
+    LOOP=( secrets configmap pvc ) &&
+    for j in "${LOOP[@]}"
     do
-        kubectl delete pv $i
+        f_deleteK8sRss $i
+    done;
+}
+
+function f_deleteK8sRss() {
+    RSS=$1
+    declare -a RSS_NAMES=$(kubectl get $RSS -A | egrep -Ev "kube" | awk 'NR!=1 { print $2 }')
+    echo -n "List $RSS: " && echo "$RSS_NAMES" #| wc -l | xargs &&
+    RSS_ARRAY=( $RSS_NAMES ) &&
+    for i in "${RSS_ARRAY[@]}"
+    do
+        kubectl delete $RSS $i
     done
 }
 
@@ -148,7 +155,6 @@ function f_executeCreation() {
     echo "================================"
     if [ -d $FLUX_DIR ]; then
         f_scaleDeployment 0
-        kubectl delete -f $FLUX_DIR
         f_wait 10
         f_resetCluster
         f_wait 60
