@@ -215,6 +215,9 @@ function f_modifyEC2() {
 }
 
 function f_configLab() {
+    echo "================================"
+    echo "========== CONFIG LAB =========="
+    echo "================================"
     if [ "$EXERID" == "5" ]; then
         ### Stop nodes as part of exercise
         ec2Process="stop"
