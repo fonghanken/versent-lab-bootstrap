@@ -216,6 +216,8 @@ function f_configLab() {
         kubectl taint nodes $NODENAME1 special=true:NoSchedule
         kubectl taint nodes $NODENAME2 special=true:NoExecute
         kubectl taint nodes $NODEINFRA1 isolation=true:NoExecute
-        kubectl drain $NODENAME2
+        kubectl drain $NODEINFRA1 --ignore-daemonsets --delete-emptydir-data
+        kubectl drain $NODENAME2 --ignore-daemonsets --delete-emptydir-data
+        kubectl drain $NODENAME1 --ignore-daemonsets --delete-emptydir-data
     fi
 }
