@@ -105,8 +105,9 @@ function f_resetCluster() {
     # kubectl delete ns calico-system
     kubectl delete ns cert-manager
     declare -a NS_NAMES=$(kubectl get namespaces -A | egrep -Ev "kube-|tigera-|calico-" | awk 'NR!=1 { print $1 }') &&
-    echo -n "List NS: " && echo "$NS_NAMES" | wc -l | xargs
-    NS_ARRAY=( $NS_NAMES ) &&
+    echo -n "List NS: "
+    NS_ARRAY=( $NS_NAMES )
+    echo "${#NS_ARRAY[@]}"
     for i in "${NS_ARRAY[@]}"
     do
         if [ "$i" == "default" ]; then
@@ -140,8 +141,9 @@ function f_deleteK8sRss() {
             declare -a RSS_NAMES=$(kubectl get $RSS -A | egrep -Ev "kube|aws|system:|eks:|admin|vpc|edit|view|tigera-|calico-" \
                 | awk 'NR!=1 { print $1 }')
         fi
-        echo -n "List $RSS: " && echo "$RSS_NAMES" | wc -l | xargs
-        RSS_ARRAY=( $RSS_NAMES ) &&
+        echo -n "List $RSS: "
+        RSS_ARRAY=( $RSS_NAMES )
+        echo "${#RSS_ARRAY[@]}"
         for j in "${RSS_ARRAY[@]}"
         do
             kubectl delete $RSS $j
@@ -189,8 +191,8 @@ function f_modifyASG() {
             --query "AutoScalingGroups[?Tags[?contains(Key, '$clusterName') && contains(Value, 'owned')]].[AutoScalingGroupName]" \
             --region ap-southeast-1 --output text) &&
     echo -n "List ASG: "
-    echo "$ASG_NAMES" | wc -l | xargs
-    ASG_NAMES_ARRAY=( $ASG_NAMES ) &&
+    ASG_NAMES_ARRAY=( $ASG_NAMES )
+    echo "${#ASG_NAMES_ARRAY[@]}"
     for i in "${ASG_NAMES_ARRAY[@]}"
     do
         #Start/Stop suspend-process
@@ -205,8 +207,8 @@ function f_modifyEC2() {
             --region ap-southeast-1 --filters Name=tag:Name,Values=*$clusterName* Name=instance-state-name,Values=$filterVal  \
             --instance-ids --output text) &&
     echo -n "List EC2: "
-    echo "$EC2_IDS" | wc -l | xargs
-    EC2_IDS_ARRAY=( $EC2_IDS ) &&
+    EC2_IDS_ARRAY=( $EC2_IDS )
+    echo "${#EC2_IDS_ARRAY[@]}"
     for i in "${EC2_IDS_ARRAY[@]}"
     do
         #Start/Stop Ec2 instances
