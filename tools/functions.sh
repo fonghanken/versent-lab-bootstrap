@@ -114,7 +114,7 @@ function f_resetCluster() {
     #kubectl api-resources --namespaced=false --verbs=delete
     ### Delete PV
     #declare -a resources=$(kubectl api-resources --namespaced=true --verbs=delete -o name)
-    LOOP=( networkpolicy ) &&
+    LOOP=( secrets configmaps pvc networkpolicy ) &&
     for i in "${LOOP[@]}"
     do
         f_deleteK8sRss $i
