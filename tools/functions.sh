@@ -93,10 +93,10 @@ function f_resetCluster() {
     kubectl config use-context "eks-$USER-lab"
     kubectl delete -f $FLUX_DIR
     f_wait 3
-    kubectl delete ns tigera-operator
-    kubectl delete ns calico-system
-    kubectl delete ns cert-manager
-    declare -a NS_NAMES=$(kubectl get namespaces -A | egrep -Ev "kube-" | awk 'NR!=1 { print $1 }') &&
+    # kubectl delete ns tigera-operator
+    # kubectl delete ns calico-system
+    # kubectl delete ns cert-manager
+    declare -a NS_NAMES=$(kubectl get namespaces -A | egrep -Ev "kube-|tigera-|calico-|cert-" | awk 'NR!=1 { print $1 }') &&
     echo "List NS: " && echo "$NS_NAMES"
      #| wc -l | xargs &&
     NS_ARRAY=( $NS_NAMES ) &&
