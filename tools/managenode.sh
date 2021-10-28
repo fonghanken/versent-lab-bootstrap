@@ -3,6 +3,11 @@ process=$1
 clusterName=$2
 source functions.sh
 
+if [ ${#2} -le 0 ]; then
+    echo "WARNING: Input a clustername to proceed!"
+    exit
+fi
+
 if [ "$process" == "start" ]; then
     ec2Process="start"
     asgProcess="resume"
