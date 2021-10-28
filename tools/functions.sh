@@ -94,9 +94,12 @@ function f_resetCluster() {
     kubectl config use-context "eks-$USER-lab"
     kubectl delete -f $FLUX_DIR
     f_wait 3
-    declare -a NS_NAMES=$(kubectl get namespaces -A | egrep -Ev "kube-|calico-|tigera-" | awk 'NR!=1 { print $1 }') &&
-    echo -n "List NS: " &&
-    echo "$NS_NAMES" #| wc -l | xargs &&
+    kubectl delete ns tigera-operator
+    kubectl delete ns calico-system
+    kubectl delete ns cert-manager
+    declare -a NS_NAMES=$(kubectl get namespaces -A | egrep -Ev "kube-" | awk 'NR!=1 { print $1 }') &&
+    echo "List NS: " && echo "$NS_NAMES"
+     #| wc -l | xargs &&
     NS_ARRAY=( $NS_NAMES ) &&
     for i in "${NS_ARRAY[@]}"
     do
@@ -108,12 +111,12 @@ function f_resetCluster() {
     done
 
     ### Delete all namespaced resources
-    #kubectl delete "$(kubectl api-resources --namespaced=true --verbs=delete -o name | tr "\n" "," | sed -e 's/,$//')" --all
+    kubectl delete "$(kubectl api-resources --namespaced=true --verbs=delete -o name | tr "\n" "," | sed -e 's/,$//')" --all
     #kubectl api-resources --namespaced=false --verbs=delete
     ### Delete PV
+
     declare -a PV_NAMES=$(kubectl get pv -A -o name)
-    echo -n "List PV: " &&
-    echo "$PV_NAMES" #| wc -l | xargs &&
+    echo -n "List PV: " && echo "$PV_NAMES" #| wc -l | xargs &&
     PV_ARRAY=( $PV_NAMES ) &&
     for i in "${echo[@]}"
     do
@@ -199,9 +202,12 @@ function f_configLab() {
         ### Stop EC2 instances
         f_modifyEC2
     elif [ "$EXERID" == "4" ]; then
-        NODENAME1=$(kubectl get nodes --show-labels | grep role=worker | awk 'NR==1 { print $1 }') &&
-        NODENAME2=$(kubectl get nodes --show-labels | grep role=worker | awk 'NR==1 { print $1 }')
+        NODEWORK1=$(kubectl get nodes --show-labels | grep role=worker | awk 'NR==1 { print $1 }') &&
+        NODEWORK2=$(kubectl get nodes --show-labels | grep role=worker | awk 'NR==2 { print $1 }') &&
+        NODEINFRA1=$(kubectl get nodes --show-labels | grep role=infra | awk 'NR==1 { print $1 }') &&
         kubectl taint nodes $NODENAME1 special=true:NoSchedule
-        kubectl taint nodes $NODENAME2 isolation=true:NoExecute
+        kubectl taint nodes $NODENAME2 special=true:NoExecute
+        kubectl taint nodes $NODEINFRA1 isolation=true:NoExecute
+        kubectl drain $NODENAME2
     fi
 }
