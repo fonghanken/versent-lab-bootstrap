@@ -87,18 +87,25 @@ function f_cloneRepo() {
 
 function f_scaleDeployment() {
     kubectl scale deployment/flux -ncicd --replicas=$1
+    kubectl scale deployment/memcached -ncicd --replicas=$1
 }
 
 function f_resetCluster() {
+    echo "==================="
+    echo "=== DISARM FLUX ==="
+    echo "==================="
     kubectl config use-context "eks-$USER-lab"
     kubectl delete -f $FLUX_DIR
     f_wait 3
+    echo "=================="
+    echo "=== DELETE RSS ==="
+    echo "=================="
+    kubectl delete networkpolicy --all
     # kubectl delete ns tigera-operator
     # kubectl delete ns calico-system
-    # kubectl delete ns cert-manager
-    declare -a NS_NAMES=$(kubectl get namespaces -A | egrep -Ev "kube-|tigera-|calico-|cert-" | awk 'NR!=1 { print $1 }') &&
-    echo "List NS: " && echo "$NS_NAMES"
-     #| wc -l | xargs &&
+    kubectl delete ns cert-manager
+    declare -a NS_NAMES=$(kubectl get namespaces -A | egrep -Ev "kube-|tigera-|calico-" | awk 'NR!=1 { print $1 }') &&
+    echo -n "List NS: " && echo "$NS_NAMES" | wc -l | xargs
     NS_ARRAY=( $NS_NAMES ) &&
     for i in "${NS_ARRAY[@]}"
     do
@@ -110,27 +117,38 @@ function f_resetCluster() {
     done
 
     ### Delete all namespaced resources
-    #kubectl delete "$(kubectl api-resources --namespaced=true --verbs=delete -o name | tr "\n" "," | sed -e 's/,$//')" --all
-    #kubectl api-resources --namespaced=false --verbs=delete
-    ### Delete PV
-    #declare -a resources=$(kubectl api-resources --namespaced=true --verbs=delete -o name)
-    LOOP=( secrets configmaps pvc networkpolicy ) &&
-    for i in "${LOOP[@]}"
-    do
-        f_deleteK8sRss $i
-        #kubectl get resources
-    done;
+    f_deleteK8sRss "true"
+
+    ### Delete non namespaced resources
+    f_deleteK8sRss "false"
 }
 
 function f_deleteK8sRss() {
-    RSS=$1
-    declare -a RSS_NAMES=$(kubectl get $RSS -A | egrep -Ev "kube" | awk 'NR!=1 { print $2 }')
-    echo -n "List $RSS: " && echo "$RSS_NAMES" #| wc -l | xargs &&
-    RSS_ARRAY=( $RSS_NAMES ) &&
-    for i in "${RSS_ARRAY[@]}"
+    nsFlag=$1
+    declare -a apiRss=$(kubectl api-resources --namespaced=$nsFlag --verbs=delete -o name)
+    API_ARRAY=( "$apiRss" )
+    if [ "$nsFlag" == "false" ]; then
+        API_ARRAY=$(echo "$API_ARRAY" | egrep -E "persistentvolumes|podsecuritypolicies|clusterrolebindings|clusterroles|volumeattachments")
+    fi
+
+    for i in "${API_ARRAY[@]}"
     do
-        kubectl delete $RSS $i
-    done
+        RSS=$i
+        if [ "$1" == "true" ]; then
+            declare -a RSS_NAMES=$(kubectl get $RSS -A | egrep -Ev "kube|aws|tigera-|calico-" | awk 'NR!=1 { print $2 }')
+        else
+            declare -a RSS_NAMES=$(kubectl get $RSS -A | egrep -Ev "kube|aws|system:|eks:|admin|vpc|edit|view|tigera-|calico-" \
+                | awk 'NR!=1 { print $1 }')
+        fi
+        echo -n "List $RSS: " && echo "$RSS_NAMES" | wc -l | xargs
+        RSS_ARRAY=( $RSS_NAMES ) &&
+        for j in "${RSS_ARRAY[@]}"
+        do
+            kubectl delete $RSS $j
+        done
+    done;
+
+   
 }
 
 function f_executeCreation() {
@@ -156,8 +174,6 @@ function f_executeCreation() {
     echo "========== CONFIGFLUX =========="
     echo "================================"
     if [ -d $FLUX_DIR ]; then
-        f_scaleDeployment 0
-        f_wait 10
         f_resetCluster
         f_wait 60
         rm -R $FLUX_DIR/*
@@ -210,13 +226,13 @@ function f_configLab() {
         ### Stop EC2 instances
         f_modifyEC2
     elif [ "$EXERID" == "4" ]; then
-        NODEWORK1=$(kubectl get nodes --show-labels | grep role=worker | awk 'NR==1 { print $1 }') &&
-        NODEWORK2=$(kubectl get nodes --show-labels | grep role=worker | awk 'NR==2 { print $1 }') &&
-        NODEINFRA1=$(kubectl get nodes --show-labels | grep role=infra | awk 'NR==1 { print $1 }') &&
-        kubectl taint nodes $NODENAME1 special=true:NoSchedule
-        kubectl taint nodes $NODENAME2 special=true:NoExecute
-        kubectl taint nodes $NODEINFRA1 isolation=true:NoExecute
+        NODEWORK1=$(kubectl get nodes --show-labels | grep role=worker | awk 'NR==1 { print $1 }')
+        NODEWORK2=$(kubectl get nodes --show-labels | grep role=worker | awk 'NR==2 { print $1 }')
+        NODEINFRA1=$(kubectl get nodes --show-labels | grep role=infra | awk 'NR==1 { print $1 }')
+        kubectl taint node $NODEWORK1 special=true:NoSchedule
+        kubectl taint node $NODEWORK2 special=true:NoExecute
+        kubectl taint node $NODEINFRA1 isolation=true:NoExecute
         kubectl drain $NODEINFRA1 --ignore-daemonsets --delete-emptydir-data
-        kubectl drain $NODENAME1 --ignore-daemonsets --delete-emptydir-data
+        kubectl drain $NODEWORK1 --ignore-daemonsets --delete-emptydir-data
     fi
 }
