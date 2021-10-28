@@ -170,7 +170,7 @@ function f_executeCreation() {
 function f_modifyASG() {
     #Obtain ASG names based on tags
     declare -a ASG_NAMES=$(aws autoscaling describe-auto-scaling-groups \
-            --query "AutoScalingGroups[?Tags[?contains(Key, 'kubernetes.io/cluster/eks-$clusterName') && contains(Value, 'owned')]].[AutoScalingGroupName]" \
+            --query "AutoScalingGroups[?Tags[?contains(Key, '$clusterName') && contains(Value, 'owned')]].[AutoScalingGroupName]" \
             --region ap-southeast-1 --output text) &&
     echo -n "List ASG: "
     echo "$ASG_NAMES" | wc -l | xargs
