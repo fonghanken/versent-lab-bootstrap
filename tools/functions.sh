@@ -230,6 +230,9 @@ function f_configLab() {
         f_modifyASG
         ### Stop EC2 instances
         f_modifyEC2
+
+        NODEINFRA1=$(kubectl get nodes --show-labels | grep role=infra | awk 'NR==1 { print $1 }')
+        kubectl drain $NODEINFRA1 --ignore-daemonsets --delete-emptydir-data
     elif [ "$EXERID" == "4" ]; then
         NODEWORK1=$(kubectl get nodes --show-labels | grep role=worker | awk 'NR==1 { print $1 }')
         NODEWORK2=$(kubectl get nodes --show-labels | grep role=worker | awk 'NR==2 { print $1 }')
