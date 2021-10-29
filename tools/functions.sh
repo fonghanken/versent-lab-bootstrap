@@ -104,7 +104,7 @@ function f_resetCluster() {
     # kubectl delete ns tigera-operator
     # kubectl delete ns calico-system
     kubectl delete ns cert-manager
-    declare -a NS_NAMES=$(kubectl get namespaces -A | egrep -Ev "kube-|tigera-|calico-" | awk 'NR!=1 { print $1 }') &&
+    declare -a NS_NAMES=$(kubectl get namespaces -A | egrep -Ev "kube-|tigera-|calico-|cert-manager" | awk 'NR!=1 { print $1 }') &&
     echo -n "List NS: "
     NS_ARRAY=( $NS_NAMES )
     echo "${#NS_ARRAY[@]}"
@@ -136,9 +136,9 @@ function f_deleteK8sRss() {
     do
         RSS=$i
         if [ "$1" == "true" ]; then
-            declare -a RSS_NAMES=$(kubectl get $RSS -A | egrep -Ev "kube|aws|tigera-|calico-" | awk 'NR!=1 { print $2 }')
+            declare -a RSS_NAMES=$(kubectl get $RSS -A | egrep -Ev "kube|aws|tigera-|calico-|cert-manager" | awk 'NR!=1 { print $2 }')
         else
-            declare -a RSS_NAMES=$(kubectl get $RSS -A | egrep -Ev "kube|aws|system:|eks:|admin|vpc|edit|view|tigera-|calico-" \
+            declare -a RSS_NAMES=$(kubectl get $RSS -A | egrep -Ev "kube|aws|system:|eks:|admin|vpc|edit|view|tigera-|calico-|cert-manager" \
                 | awk 'NR!=1 { print $1 }')
         fi
         echo -n "List $RSS: "
