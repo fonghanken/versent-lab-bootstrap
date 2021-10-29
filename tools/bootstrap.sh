@@ -57,9 +57,10 @@ if [[ "$TF_RESULTS" == *"eks-$USER-lab-worker"* ]]; then
     asgProcess="resume"
     filterVal="stopped"
     clusterName="$USER-lab"
-    
+
     ### Start EC2 instances
     f_modifyEC2
+    f_wait 120
     echo "================================"
     echo "========== APPLY FLUX =========="
     echo "================================"
