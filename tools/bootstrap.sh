@@ -51,6 +51,16 @@ TF_RESULTS=$(terraform output eks_nodegroup | grep node_group_name)
 
 if [[ "$TF_RESULTS" == *"eks-$USER-lab-worker"* ]]; then
     echo "================================"
+    echo "========== START NODE =========="
+    echo "================================"
+    ec2Process="start"
+    asgProcess="resume"
+    filterVal="stopped"
+    clusterName="$USER-lab"
+    
+    ### Start EC2 instances
+    f_modifyEC2
+    echo "================================"
     echo "========== APPLY FLUX =========="
     echo "================================"
     if [ -d $FLUX_DIR ]; then
