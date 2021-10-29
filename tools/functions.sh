@@ -225,7 +225,7 @@ function f_configLab() {
         ec2Process="stop"
         asgProcess="suspend"
         filterVal="running"
-
+        clusterName="$USER-lab"
         ### Suspend Launch & Terminate on ASG
         f_modifyASG
         ### Stop EC2 instances
