@@ -60,14 +60,15 @@ if [[ "$TF_RESULTS" == *"eks-$USER-lab-worker"* ]]; then
 
     ### Start EC2 instances
     f_modifyEC2
-    f_wait 120
+    echo "*** Please wait for 1min for Nodes to startup ***"
+    f_wait 60
     echo "================================"
     echo "========== APPLY FLUX =========="
     echo "================================"
     if [ -d $FLUX_DIR ]; then
         kubectl apply -f $FLUX_DIR
-        echo "*** Please wait for 5mins for Flux to complete deployment ***"
-        f_wait 300
+        echo "*** Please wait for 4mins for Flux to complete deployment ***"
+        f_wait 240
         f_configLab
         f_scaleDeployment 0
     fi
