@@ -103,7 +103,7 @@ function f_resetCluster() {
     kubectl delete networkpolicy --all
     # kubectl delete ns tigera-operator
     # kubectl delete ns calico-system
-    kubectl delete ns cert-manager
+    # kubectl delete ns cert-manager
     declare -a NS_NAMES=$(kubectl get namespaces -A | egrep -Ev "kube-|tigera-|calico-|cert-manager" | awk 'NR!=1 { print $1 }') &&
     echo -n "List NS: "
     NS_ARRAY=( $NS_NAMES )
