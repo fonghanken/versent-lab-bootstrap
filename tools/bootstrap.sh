@@ -7,6 +7,7 @@
 USER=$1
 EXERID=$2
 TF_OPT=$3
+EXER_TYPE=$4
 
 if [ ${#1} -gt 0 ] && [ ${#1} -ge 11 ]; then
     echo "WARNING: Input a username that is no more than 10 characters!"
@@ -34,6 +35,15 @@ f_checkEnvironment
 if [ $# -le 1 ]; then
     echo 'WARNING: Please input user and lab number as arguments!'
     exit
+fi
+
+if [ ${#4} -ge 1 ]; then
+    if [[ ! "$4" == "question" ]] && [[ ! "$4" == "answer" ]]; then
+        echo "WARNING: Input a valid Exercise Type (question/answer)!"
+        exit
+    fi
+else
+    EXER_TYPE="question"
 fi
 
 ### Initializing Directory
@@ -68,9 +78,11 @@ if [[ "$TF_RESULTS" == *"eks-$USER-lab-worker"* ]]; then
     if [ -d $FLUX_DIR ]; then
         kubectl apply -f $FLUX_DIR
         echo "*** Please wait for 4mins for Flux to complete deployment ***"
-        f_wait 240
-        f_configLab
-        f_scaleDeployment 0
+        if [[ "$4" == "question" ]]; then
+            f_wait 240
+            f_configLab
+            f_scaleDeployment 0
+        fi
     fi
 
     echo "***********************************"

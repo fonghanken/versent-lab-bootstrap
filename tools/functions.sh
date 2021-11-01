@@ -67,7 +67,7 @@ function f_cloneRepo() {
         mkdir -p $LAB_DIR
         cd $LAB_DIR && git clone $REPO_LAB_ADD .
     fi
-    find flux-deployment.yaml     | xargs sed -i '' -e     's#${versent-lab-exercise}#lab-'$EXERID'#g'
+    find flux-deployment.yaml     | xargs sed -i '' -e     's#${versent-lab-exercise}#'$EXER_TYPE'/lab-'$EXERID'#g'
 
     echo "================================"
     echo "========== CLONING TF =========="
@@ -221,6 +221,9 @@ function f_configLab() {
     echo "========== CONFIG LAB =========="
     echo "================================"
     if [ "$EXERID" == "5" ]; then
+        NODEINFRA1=$(kubectl get nodes --show-labels | grep role=infra | awk 'NR==1 { print $1 }')
+        kubectl drain $NODEINFRA1 --ignore-daemonsets --delete-emptydir-data
+
         ### Stop nodes as part of exercise
         ec2Process="stop"
         asgProcess="suspend"
@@ -230,9 +233,6 @@ function f_configLab() {
         f_modifyASG
         ### Stop EC2 instances
         f_modifyEC2
-
-        NODEINFRA1=$(kubectl get nodes --show-labels | grep role=infra | awk 'NR==1 { print $1 }')
-        kubectl drain $NODEINFRA1 --ignore-daemonsets --delete-emptydir-data
     elif [ "$EXERID" == "4" ]; then
         NODEWORK1=$(kubectl get nodes --show-labels | grep role=worker | awk 'NR==1 { print $1 }')
         NODEWORK2=$(kubectl get nodes --show-labels | grep role=worker | awk 'NR==2 { print $1 }')
