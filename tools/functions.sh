@@ -129,7 +129,7 @@ function f_deleteK8sRss() {
     declare -a apiRss=$(kubectl api-resources --namespaced=$nsFlag --verbs=delete -o name)
     API_ARRAY=( "$apiRss" )
     if [ "$nsFlag" == "false" ]; then
-        API_ARRAY=$(echo "$API_ARRAY" | egrep -E "persistentvolumes|podsecuritypolicies|clusterrolebindings|clusterroles|volumeattachments")
+        API_ARRAY=$(echo "$API_ARRAY" | egrep -E "persistentvolumes|podsecuritypolicies|clusterrolebindings|clusterroles|volumeattachments|webhook")
     fi
 
     for i in "${API_ARRAY[@]}"
